@@ -23,14 +23,6 @@ router = APIRouter(
     tags=['tenant']
 )
 
-# @router.get('/hello')
-# def hello_tenant(country_alias: str, schema_name: str = Depends(get_schema_name)):
-#     """
-#         Function to check the name of the schema
-#     """
-#     print(schema_name, country_alias)
-#     return {"message": schema_name}
-
 @router.post('/extra', status_code=201, response_model=ExtraResponse)
 async def create_extra(country_alias:str, data: ExtrasCreate,
                 user: UserResponse = Depends(get_admin_user),

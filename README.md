@@ -84,3 +84,25 @@ def generate_pydantic_model(table: Table) -> Type[BaseModel]:
     )
     return model
 ```
+### C. Runtime Column Injection (Schema Evolution)
+The API allows users to register new "Extra" attributes. When a new attribute is created, the system performs a live DDL operation to alter the physical table structure within the specific tenant's schema.
+
+```python
+# router_tenant.py
+
+@router.post('/extra', status_code=201)
+async def create_extra(country_alias: str, data: ExtrasCreate, 
+                       user: UserResponse = Depends(get_admin_user),
+                       db: Session = Depends(get_db_schemas)):
+    """
+    Demonstrates Dynamic Logic:
+    1. Persists field metadata in the 'extras' table of the tenant schema.
+    2. Immediately triggers an 'ALTER TABLE' to add the physical column.
+    """
+    extra_model = Extras(**data.model_dump())
+    extra_db = await save_instance(extra_model, db)
+    
+    # Execute the DDL command to modify the physical database structure
+    await add_column(extra_db, db) 
+    return extra_db
+```

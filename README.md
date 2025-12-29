@@ -56,3 +56,31 @@ def format_schema(country: any):
     alias = clean_string(country.alias)
     return f"{name}_{alias}_schema"
 ```
+### B. Dynamic Pydantic Model Generation
+The system bridges the gap between flexible SQL tables and API validation by generating Pydantic models on demand. This allows the API to validate and return fields that were created by users at runtime.
+
+```python
+# pydantic_models/pydanctic_coutries.py
+
+def generate_pydantic_model(table: Table) -> Type[BaseModel]:
+    """
+    Dynamically creates a Pydantic model based on the current state of a SQL table.
+    Ensures that dynamic 'Extra' fields are included in API validation.
+    """
+    fields = {}
+    for column in table.columns: 
+        column_type = column.type.python_type
+        # Handle Nullable fields as Optional
+        if column.nullable:
+            fields[column.name] = (Optional[column_type], None)
+        else: 
+            fields[column.name] = (column_type, ...)
+    
+    # Construct the Pydantic class in memory
+    model = create_model(
+        table.name.capitalize(),
+        **fields,
+        __config__=Config
+    )
+    return model
+```

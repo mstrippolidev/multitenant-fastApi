@@ -4,7 +4,36 @@ A high-performance **Schema-per-Tenant** application built with **FastAPI** and 
 
 This project goes beyond standard CRUD operations by implementing a **Runtime Dynamic Model Engine**. It allows tenants (Countries) to have isolated database schemas and modify their data structures (tables) on the fly, with the API automatically generating corresponding Pydantic validation schemas in real-time.
 
-## 🏗 Architectural Overview
+## 🏗️ Multi-Tenant Architecture: Postgres Schema Isolation
+
+This project demonstrates a production-grade **SaaS (Software as a Service)** architecture using **FastAPI** and **SQLAlchemy**. It implements a **"Shared Database, Separate Schema"** strategy, ensuring robust data isolation between tenants while maintaining high operational efficiency.
+
+### 🖼️ Architecture Overview
+<img width="1000" height="600" alt="Code_Generated_Image (3)" src="https://github.com/user-attachments/assets/4439ddf1-05f5-424e-a18d-09f1726c1bd0" />
+
+
+### 🚀 Key Technical Implementation
+
+#### 1. Dynamic Schema Switching
+The core of this application is a custom **FastAPI Dependency** that extracts the `tenant_id` from the incoming request (via headers or subdomains). It then dynamically sets the PostgreSQL `search_path` for that specific database session, ensuring the application "sees" only that tenant's tables.
+
+#### 2. Strict Data Isolation
+By utilizing **Postgres Schemas**, we achieve:
+* **Security:** Tenant A's data is logically separated from Tenant B at the database engine level.
+* **Scalability:** New tenants can be onboarded by simply creating a new schema and running migrations.
+* **Clean Code:** Developers write standard SQLAlchemy models without having to manually add `tenant_id` filters to every single query.
+
+#### 3. Professional SaaS Features
+* **Middleware Interception:** Automatic identification of tenant context for every request.
+* **Alembic Migrations:** Integrated strategy for applying database changes across all tenant schemas simultaneously.
+* **Error Handling:** Robust protection against "cross-talk"—if a tenant ID is missing or invalid, the request is immediately rejected before touching the data layer.
+
+### 🛠️ Tech Stack
+* **FastAPI:** High-performance web framework.
+* **SQLAlchemy:** SQL Toolkit and ORM with dynamic bind support.
+* **PostgreSQL:** Advanced relational database utilizing Schemas for isolation.
+* **Pydantic:** Data validation and settings management.
+
 
 ### 1. Schema-Based Multitenancy
 Instead of using a shared schema with a `tenant_id` column, this application isolates data by creating a dedicated PostgreSQL schema for each country (e.g., `united_states_us_schema`, `mexico_mx_schema`).
